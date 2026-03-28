@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free AI Meta Tag Generator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+        
+        .form-group { margin-bottom: 25px; }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        textarea, input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+            transition: border 0.3s;
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        textarea:focus, input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .helper-text {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        
+        .loading.show { display: block; }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .error.show { display: block; }
+        
+        .results {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .results.show { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tag-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        .tag-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .tag-preview {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .tag-preview .title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #1a0dab;
+            margin-bottom: 5px;
+        }
+        
+        .tag-preview .description {
+            color: #545454;
+            line-height: 1.5;
+        }
+        
+        .char-count {
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+        
+        .char-count.good { color: #28a745; }
+        .char-count.warning { color: #ffc107; }
+        .char-count.bad { color: #dc3545; }
+        
+        .code-section {
+            margin-top: 20px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            position: relative;
+        }
+        
+        .code-block code {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 8px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .copy-btn:hover { background: #5568d3; }
+        
+        .keywords-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .keyword-tag {
+            background: #667eea;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 AI Meta Tag Generator</h1>
+            <p>Generate perfect SEO meta tags in seconds</p>
+        </div>
+        
+        <div class="card">
+            <form id="generateForm">
+                <div class="form-group">
+                    <label for="content">Page Content / Description *</label>
+                    <textarea 
+                        id="content" 
+                        placeholder="Describe your page content..."
+                        required
+                    ></textarea>
+                    <div class="helper-text">Minimum 20 characters</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="keywords">Target Keywords (Optional)</label>
+                    <input 
+                        type="text" 
+                        id="keywords" 
+                        placeholder="e.g., SEO tools, meta tags"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="url">Page URL (Optional)</label>
+                    <input 
+                        type="url" 
+                        id="url" 
+                        placeholder="https://example.com"
+                    >
+                </div>
+                
+                <button type="submit" class="btn">
+                    ✨ Generate Meta Tags
+                </button>
+            </form>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Generating meta tags...</p>
+            </div>
+            
+            <div class="error" id="error"></div>
+        </div>
+        
+        <div class="results" id="results">
+            <div class="card">
+                <div class="tag-section">
+                    <h3>📄 Meta Title</h3>
+                    <div class="tag-preview">
+                        <div class="title" id="metaTitle"></div>
+                        <div class="char-count" id="titleCount"></div>
+                    </div>
+                </div>
+                
+                <div class="tag-section">
+                    <h3>📝 Meta Description</h3>
+                    <div class="tag-preview">
+                        <div class="description" id="metaDescription"></div>
+                        <div class="char-count" id="descCount"></div>
+                    </div>
+                </div>
+                
+                <div class="tag-section">
+                    <h3>🏷️ Keywords</h3>
+                    <div class="keywords-list" id="keywordsList"></div>
+                </div>
+                
+                <div class="code-section">
+                    <h3>💻 HTML Code</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode()">📋 Copy</button>
+                        <code id="htmlCode"></code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const content = document.getElementById('content').value.trim();
+            const keywords = document.getElementById('keywords').value.trim();
+            const url = document.getElementById('url').value.trim();
+            
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const error = document.getElementById('error');
+            const btn = document.querySelector('.btn');
+            
+            loading.classList.add('show');
+            results.classList.remove('show');
+            error.classList.remove('show');
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content, keywords, url })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Generation failed');
+                }
+                
+                displayResults(data);
+                
+                loading.classList.remove('show');
+                results.classList.add('show');
+                results.scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (err) {
+                loading.classList.remove('show');
+                error.textContent = '❌ ' + err.message;
+                error.classList.add('show');
+            } finally {
+                btn.disabled = false;
+            }
+        });
+        
+        function displayResults(data) {
+            const { metaTags, htmlCode, stats } = data;
+            
+            document.getElementById('metaTitle').textContent = metaTags.metaTitle;
+            document.getElementById('titleCount').textContent = 
+                `${stats.titleLength} characters`;
+            document.getElementById('titleCount').className = 
+                'char-count ' + getCharClass(stats.titleLength, 50, 60);
+            
+            document.getElementById('metaDescription').textContent = metaTags.metaDescription;
+            document.getElementById('descCount').textContent = 
+                `${stats.descriptionLength} characters`;
+            document.getElementById('descCount').className = 
+                'char-count ' + getCharClass(stats.descriptionLength, 150, 160);
+            
+            document.getElementById('keywordsList').innerHTML = 
+                metaTags.keywords.map(kw => `<span class="keyword-tag">${kw}</span>`).join('');
+            
+            document.getElementById('htmlCode').textContent = htmlCode;
+        }
+        
+        function getCharClass(length, min, max) {
+            if (length >= min && length <= max) return 'good';
+            if (length < min || length <= max + 10) return 'warning';
+            return 'bad';
+        }
+        
+        function copyCode() {
+            const code = document.getElementById('htmlCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => btn.textContent = '📋 Copy', 2000);
+            });
+        }
+    </script>
+</body>
+</html>
